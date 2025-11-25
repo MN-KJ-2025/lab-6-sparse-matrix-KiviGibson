@@ -11,6 +11,7 @@ import numpy as np
 import scipy as sp
 
 
+
 def is_diagonally_dominant(A: np.ndarray | sp.sparse.csc_array) -> bool | None:
     """Funkcja sprawdzająca czy podana macierz jest diagonalnie zdominowana.
 
@@ -23,7 +24,23 @@ def is_diagonally_dominant(A: np.ndarray | sp.sparse.csc_array) -> bool | None:
             w przeciwnym wypadku `False`.
         Jeżeli dane wejściowe są niepoprawne funkcja zwraca `None`.
     """
-    pass
+    if not isinstance(A, np.ndarray| sp.sparse.csc_array):
+        return None
+    if isinstance(A, sp.sparse._csc.csc_array):
+        A = A.toarray()
+    if A.ndim != 2: return None
+    m,n = A.shape
+    if m != n:
+        return None 
+    for rows in range(A.shape[0]):
+        row_sum = 0
+        for cols in range(A.shape[1]):
+            if rows != cols:
+                row_sum += abs(A[rows][cols])
+        if row_sum >= abs(A[rows][rows]):
+            return False
+    return True
+
 
 
 def residual_norm(A: np.ndarray, x: np.ndarray, b: np.ndarray) -> float | None:
@@ -40,4 +57,9 @@ def residual_norm(A: np.ndarray, x: np.ndarray, b: np.ndarray) -> float | None:
         (float): Wartość normy residuum dla podanych parametrów.
         Jeżeli dane wejściowe są niepoprawne funkcja zwraca `None`.
     """
-    pass
+    if not (isinstance(A, np.ndarray) and isinstance(x, np.ndarray) and isinstance(b, np.ndarray)):
+        return None
+    (m,n) = A.shape
+    if x.shape[0] != n or b.shape[0] != m:
+        return None
+    return np.linalg.norm(b-(A@x))
